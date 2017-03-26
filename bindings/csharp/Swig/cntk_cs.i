@@ -1169,26 +1169,12 @@ SWIG_STD_VECTOR_ENHANCED(CNTK::DeviceDescriptor)
     {
         if (typeof(T).Equals(typeof(float)))
         {
-            var inputVector = new FloatVector();
-            System.Collections.Generic.IEnumerable<float> batchInType = batch as System.Collections.Generic.IEnumerable<float>;
-            if (batchInType == null)
-                throw new System.ArgumentNullException("The parameter batch cannot be casted as IEnumerable<float>.");
-            foreach (var element in batchInType)
-            {
-                inputVector.Add(element);
-            }
+            var inputVector = AsFloatVector(batch);
             return Value.CreateBatchFloat(sampleShape, inputVector, device, readOnly);
         }
         else if (typeof(T).Equals(typeof(double)))
         {
-            var inputVector = new DoubleVector();
-            System.Collections.Generic.IEnumerable<double> batchInType = batch as System.Collections.Generic.IEnumerable<double>;
-            if (batchInType == null)
-                throw new System.ArgumentNullException("The parameter batch cannot be casted as IEnumerable<double>.");
-            foreach (var element in batchInType)
-            {
-                inputVector.Add(element);
-            }
+            var inputVector = AsDoubleVector(batch);
             return Value.CreateBatchDouble(sampleShape, inputVector, device, readOnly);
         }
         else
@@ -1213,26 +1199,12 @@ SWIG_STD_VECTOR_ENHANCED(CNTK::DeviceDescriptor)
     {
         if (typeof(T).Equals(typeof(float)))
         {
-            var inputVector = new FloatVector();
-            System.Collections.Generic.IEnumerable<float> sequenceInType = sequence as System.Collections.Generic.IEnumerable<float>;
-            if (sequenceInType == null)
-                throw new System.ArgumentNullException("The parameter sequence cannot be casted as IEnumerable<float>.");
-            foreach (var element in sequenceInType)
-            {
-                inputVector.Add(element);
-            }
+            var inputVector = AsFloatVector(sequence);
             return Value.CreateSequenceFloat(sampleShape, inputVector, sequenceStartFlag, device, readOnly);
         }
         else if (typeof(T).Equals(typeof(double)))
         {
-            var inputVector = new DoubleVector();
-            System.Collections.Generic.IEnumerable<double> sequenceInType = sequence as System.Collections.Generic.IEnumerable<double>;
-            if (sequenceInType == null)
-                throw new System.ArgumentNullException("The parameter sequence cannot be casted as IEnumerable<double>.");
-            foreach (var element in sequenceInType)
-            {
-                inputVector.Add(element);
-            }
+            var inputVector = AsDoubleVector(sequence);
             return Value.CreateSequenceDouble(sampleShape, inputVector, sequenceStartFlag, device, readOnly);
         }
         else
@@ -1258,7 +1230,7 @@ SWIG_STD_VECTOR_ENHANCED(CNTK::DeviceDescriptor)
         return Create(sampleShape, batchOfSequences, sequenceStartFlags, device, readOnly);
     }
 
-    private static Value Create<T>(NDShape sampleShape,
+    public static Value Create<T>(NDShape sampleShape,
                                   System.Collections.Generic.List<System.Collections.Generic.List<T>> sequences,
                                   System.Collections.Generic.IEnumerable<bool> sequenceStartFlags,
                                   DeviceDescriptor device,
@@ -1299,8 +1271,48 @@ SWIG_STD_VECTOR_ENHANCED(CNTK::DeviceDescriptor)
         }
     }
 
+    private static FloatVector AsFloatVector<T>(System.Collections.Generic.IEnumerable<T> sequence)
+    {
+        if (typeof(T).Equals(typeof(float)))
+        {
+            var inputVector = new FloatVector();
+            System.Collections.Generic.IEnumerable<float> sequenceInType = sequence as System.Collections.Generic.IEnumerable<float>;
+            if (sequenceInType == null)
+                throw new System.ArgumentNullException("The parameter sequence cannot be casted as IEnumerable<float>.");
+            foreach (var element in sequenceInType)
+            {
+                inputVector.Add(element);
+            }
+            return inputVector;
+        }
+        else
+        {
+            throw new System.ArgumentException("The data type " + typeof(T).ToString() + " is not supported. Only float or double is supported by CNTK.");
+        }
+    }
+
+    private static DoubleVector AsDoubleVector<T>(System.Collections.Generic.IEnumerable<T> sequence)
+    {
+        if (typeof(T).Equals(typeof(double)))
+        {
+            var inputVector = new DoubleVector();
+            System.Collections.Generic.IEnumerable<double> sequenceInType = sequence as System.Collections.Generic.IEnumerable<double>;
+            if (sequenceInType == null)
+                throw new System.ArgumentNullException("The parameter sequence cannot be casted as IEnumerable<double>.");
+            foreach (var element in sequenceInType)
+            {
+                inputVector.Add(element);
+            }
+            return inputVector;
+        }
+        else
+        {
+            throw new System.ArgumentException("The data type " + typeof(T).ToString() + " is not supported. Only float or double is supported by CNTK.");
+        }
+    }
+
     // Create Value object from OneHotVector input, for N-dimenstional tensor. Only Create() method for now.
-    private static Value Create<T>(NDShape sampleShape,
+    public static Value Create<T>(NDShape sampleShape,
                                   System.Collections.Generic.List<System.Collections.Generic.List<int>> sequences,
                                   System.Collections.Generic.IEnumerable<bool> sequenceStartFlags,
                                   DeviceDescriptor device,
